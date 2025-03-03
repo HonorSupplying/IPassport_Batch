@@ -1,4 +1,4 @@
-CREATE PROCEDURE sp_clear_activity_log
+CREATE PROCEDURE sp_clear_audit_trail
 AS
 BEGIN
     DECLARE @ThresholdYears INT;
@@ -10,7 +10,14 @@ BEGIN
     IF @ThresholdYears IS NULL
         SET @ThresholdYears = 3;
 
-    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_ACTIVITY_LOG
+    -- Start transaction
+    BEGIN TRANSACTION;
+
+    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_AUDIT_TRAIL
     WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdYears;
+
+    -- Commit transaction
+    COMMIT TRANSACTION;
+
 END;
 GO

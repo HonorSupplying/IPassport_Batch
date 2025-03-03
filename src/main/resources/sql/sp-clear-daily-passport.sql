@@ -1,4 +1,4 @@
-CREATE PROCEDURE sp_clear_thaiid
+CREATE PROCEDURE sp_clear_passportid
 AS
 BEGIN
     DECLARE @ThresholdHours INT;
@@ -10,7 +10,14 @@ BEGIN
     IF @ThresholdHours IS NULL
         SET @ThresholdHours = 24;
 
-    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_THAIID
+    -- Start transaction
+    BEGIN TRANSACTION;
+
+    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_PASSPORTID
     WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours;
+
+    -- Commit transaction
+    COMMIT TRANSACTION;
+
 END;
 GO

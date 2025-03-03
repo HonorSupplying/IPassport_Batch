@@ -10,7 +10,15 @@ BEGIN
     IF @ThresholdYears IS NULL
         SET @ThresholdYears = 3;
 
+    -- Commit transaction
+    COMMIT TRANSACTION;
+
     DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
     WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdYears;
+
+    -- Commit transaction
+    COMMIT TRANSACTION;
+
+
 END;
 GO
