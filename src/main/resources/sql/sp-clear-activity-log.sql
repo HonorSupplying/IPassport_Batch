@@ -14,7 +14,7 @@ BEGIN
     BEGIN TRANSACTION;
 
     DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_ACTIVITY_LOG
-    WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdYears;
+    WHERE DATEDIFF(YEAR, record_created_date, GETDATE()) > @ThresholdYears;
 
     -- Commit transaction
     COMMIT TRANSACTION;
