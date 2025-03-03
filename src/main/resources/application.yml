@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: ipassportbatch
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=IPASSPORTDDB;encrypt=true;trustServerCertificate=true;Autocommit=True;
+    username: farizl
+    password: farizl
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  batch:
+    jdbc:
+      initialize-schema: always
+logging:
+  file:
+    name: logs/batch-log.log
+  level:
+    root: INFO
+
+
