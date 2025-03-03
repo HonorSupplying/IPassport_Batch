@@ -102,6 +102,7 @@ BEGIN
 --    DELETE FROM IPRO_TX_AUDIT_TRAIL;
 --    DELETE FROM IPRO_TX_ACTIVITY_LOG;
 END;
+GO
 
 -- Mark Expire
 CREATE PROCEDURE sp_mark_expire
@@ -119,11 +120,6 @@ BEGIN
     UPDATE IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
     SET transaction_status = 'E'
     WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours AND transaction_status = 'N';
-
---    -- Update
---    UPDATE IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
---    SET record_updated_date = GETDATE()
---    WHERE DATEDIFF(HOUR, record_timestamp, GETDATE()) > @ThresholdHours;
 
 END;
 GO
