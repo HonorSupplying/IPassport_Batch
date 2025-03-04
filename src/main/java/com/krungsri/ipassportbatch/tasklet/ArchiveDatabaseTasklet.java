@@ -27,10 +27,9 @@ public class ArchiveDatabaseTasklet implements Tasklet {
             logger.info("Archive IPASSPORT Database...");
             jdbcTemplate.execute("SET IMPLICIT_TRANSACTIONS OFF;EXEC sp_data_retention");
             logger.info("Archive IPASSPORT Database success.");
-            return RepeatStatus.FINISHED;
         }catch (Exception e){
-            logger.error("Archive IPASSPORT Database unsuccess {}",e.getMessage());
-            return RepeatStatus.FINISHED;
+            logger.error("Archive IPASSPORT Database Fail {}",e.getMessage());
         }
+        return RepeatStatus.FINISHED;
     }
 }

@@ -28,10 +28,9 @@ public class ClearActivityTasklet implements Tasklet {
             logger.info("Clearing IPRO_TX_ACTIVITY_LOG table...");
             jdbcTemplate.execute("EXEC sp_clear_activity_log");
             logger.info("IPRO_TX_ACTIVITY_LOG cleared.");
-            return RepeatStatus.FINISHED;
         }catch (Exception e){
-            logger.error("Clearing IPRO_TX_ACTIVITY_LOG table unsuccess {}",e.getMessage());
-            return RepeatStatus.FINISHED;
+            logger.error("Clearing IPRO_TX_ACTIVITY_LOG table Fail {}",e.getMessage());
         }
+        return RepeatStatus.FINISHED;
     }
 }

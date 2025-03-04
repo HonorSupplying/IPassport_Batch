@@ -27,10 +27,9 @@ public class ClearThaiIdTasklet implements Tasklet {
             logger.info("Clearing IPRO_TX_THAIID table...");
             jdbcTemplate.execute("EXEC sp_clear_thaiid");
             logger.info("IPRO_TX_THAIID cleared.");
-            return RepeatStatus.FINISHED;
         }catch (Exception e){
-            logger.error("Clearing IPRO_TX_THAIID table unsuccess {}",e.getMessage());
-            return RepeatStatus.FINISHED;
+            logger.error("Clearing IPRO_TX_THAIID table Fail {}",e.getMessage());
         }
+        return RepeatStatus.FINISHED;
     }
 }

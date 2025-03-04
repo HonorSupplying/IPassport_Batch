@@ -46,14 +46,14 @@ public class BatchScheduler {
         this.dataRetention = dataRetention;
     }
 
-    @Scheduled(cron = "0 0 0 * * *") // Every Day @ midnight
-    //@Scheduled(cron = "0 */1 * * * *")  // Every 1 minute for testing
+    //@Scheduled(cron = "0 0 0 * * *") // Every Day @ midnight
+    @Scheduled(cron = "0 */1 * * * *")  // Every 1 minute for testing
     public void scheduleClearCustomerData() throws Exception {
         jobLauncher.run(clearCustomerData, new JobParameters());
     }
 
-    @Scheduled(cron = "0 0 * * * ?") // Every hour
-    //@Scheduled(cron = "0 */1 * * * *") // Every 1 minute for testing
+    //@Scheduled(cron = "0 0 * * * ?") // Every hour
+    @Scheduled(cron = "0 */1 * * * *") // Every 1 minute for testing
     public void scheduleMarkExpiredTransaction() throws Exception {
         jobLauncher.run(markExpiredTransaction, new JobParameters());
     }
@@ -65,8 +65,6 @@ public class BatchScheduler {
         if (currentYear % 3 == 0) {
             jobLauncher.run(clearCustomerData,new JobParameters());
             jobLauncher.run(dataRetention, new JobParameters());
-        } else {
-
         }
     }
 

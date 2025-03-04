@@ -2,6 +2,7 @@ package com.krungsri.ipassportbatch.job;
 
 import com.krungsri.ipassportbatch.tasklet.ClearPassportIdTasklet;
 import com.krungsri.ipassportbatch.tasklet.ClearThaiIdTasklet;
+import com.krungsri.ipassportbatch.tasklet.MarkExpireTransactionBeforeDailyClearTasklet;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -18,9 +19,10 @@ public class ClearCustomerDataJob {
     public ClearCustomerDataJob() {}
 
     @Bean
-    public Job clearCustomerData(JobRepository jobRepository, Step clearPassportIdStep, Step clearThaiIdStep) {
+    public Job clearCustomerData(JobRepository jobRepository, Step clearPassportIdStep, Step clearThaiIdStep,Step markExpireBeforeClearStep) {
         return new JobBuilder("clearCustomerData", jobRepository)
-                .start(clearPassportIdStep)
+                .start(markExpireBeforeClearStep)
+                .next(clearPassportIdStep)
                 .next(clearThaiIdStep)
                 .build();
     }
@@ -38,6 +40,14 @@ public class ClearCustomerDataJob {
         return new StepBuilder("clearThaiIdStep",jobRepository)
                 .allowStartIfComplete(true)
                 .tasklet(clearThaiIdTasklet,transactionManager)
+                .build();
+    }
+
+    @Bean
+    public Step markExpireBeforeClearStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, MarkExpireTransactionBeforeDailyClearTasklet markExpireTransactionBeforeDailyClearTasklet){
+        return new StepBuilder("markExpireBeforeClearStep",jobRepository)
+                .allowStartIfComplete(true)
+                .tasklet(markExpireTransactionBeforeDailyClearTasklet,transactionManager)
                 .build();
     }
 }

@@ -1,4 +1,9 @@
 spring:
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
   application:
     name: ipassportbatch
   datasource:
@@ -6,14 +11,12 @@ spring:
     username: farizl
     password: farizl
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
-  batch:
-    jdbc:
-      initialize-schema: always
   jpa:
     database-platform: org.hibernate.dialect.SQLServerDialect
 logging:
   file:
     name: logs/batch-log.log
+    path: logs/
   level:
     root: INFO
 

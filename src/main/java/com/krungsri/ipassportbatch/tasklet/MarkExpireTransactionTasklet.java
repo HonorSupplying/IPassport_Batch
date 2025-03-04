@@ -27,10 +27,9 @@ public class MarkExpireTransactionTasklet implements Tasklet {
             logger.info("Updating Expire IPRO_TX_TRANSACTION table...");
             jdbcTemplate.execute("EXEC sp_mark_expire");
             logger.info("IPRO_TX_TRANSACTION Update success.");
-            return RepeatStatus.FINISHED;
         }catch (Exception e){
-            logger.error("Updating IPRO_TX_TRANSACTION table unsuccess {}",e.getMessage());
-            return RepeatStatus.FINISHED;
+            logger.error("Updating IPRO_TX_TRANSACTION table Fail {}",e.getMessage());
         }
+        return RepeatStatus.FINISHED;
     }
 }

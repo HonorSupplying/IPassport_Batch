@@ -27,10 +27,9 @@ public class ClearAuditTrailTasklet implements Tasklet {
             logger.info("Clearing IPRO_TX_AUDIT_TRAIL table...");
             jdbcTemplate.execute("EXEC sp_clear_audit_trail");
             logger.info("IPRO_TX_AUDIT_TRAIL cleared.");
-            return RepeatStatus.FINISHED;
         }catch (Exception e){
-            logger.error("Clearing IPRO_TX_AUDIT_TRAIL table unsuccess {}",e.getMessage());
-            return RepeatStatus.FINISHED;
+            logger.error("Clearing IPRO_TX_AUDIT_TRAIL table Fail {}",e.getMessage());
         }
+        return RepeatStatus.FINISHED;
     }
 }

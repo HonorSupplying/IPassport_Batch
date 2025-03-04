@@ -5,21 +5,30 @@ BEGIN
     DECLARE @ThresholdYears INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdYears = config_value FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
+    SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
 
-    -- Default to 24 hours if no value is found
+    -- Default to 3 years if no value is found
     IF @ThresholdYears IS NULL
         SET @ThresholdYears = 3;
 
     -- Start transaction
-    BEGIN TRANSACTION;
+    BEGIN TRY
+        BEGIN TRANSACTION;
 
-    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_ACTIVITY_LOG
-    WHERE DATEDIFF(YEAR, record_created_date, GETDATE()) > @ThresholdYears;
+        DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_ACTIVITY_LOG
+        WHERE record_created_date < DATEADD(YEAR, -@ThresholdYears, GETDATE());
 
-    -- Commit transaction
-    COMMIT TRANSACTION;
+        -- Commit transaction
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback transaction in case of error
+        ROLLBACK TRANSACTION;
 
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        SET @ErrorMessage = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage,16,1);
+    END CATCH
 END;
 GO
 
@@ -30,21 +39,30 @@ BEGIN
     DECLARE @ThresholdYears INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdYears = config_value FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
+    SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
 
     -- Default to 24 hours if no value is found
     IF @ThresholdYears IS NULL
         SET @ThresholdYears = 3;
 
-    -- Start transaction
-    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Start transaction
+        BEGIN TRANSACTION;
 
-    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_AUDIT_TRAIL
-    WHERE DATEDIFF(YEAR, record_created_date, GETDATE()) > @ThresholdYears;
+        DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_AUDIT_TRAIL
+        WHERE record_created_date < DATEADD(YEAR, -@ThresholdYears, GETDATE());
 
-    -- Commit transaction
-    COMMIT TRANSACTION;
+        -- Commit transaction
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+            -- Rollback transaction in case of error
+            ROLLBACK TRANSACTION;
 
+            DECLARE @ErrorMessage NVARCHAR(4000);
+            SET @ErrorMessage = ERROR_MESSAGE();
+            RAISERROR(@ErrorMessage,16,1);
+    END CATCH
 END;
 GO
 
@@ -55,26 +73,35 @@ BEGIN
     DECLARE @ThresholdYears INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdYears = config_value FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
+   SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
 
-    -- Default to 24 hours if no value is found
+    -- Default to 3 years if no value is found
     IF @ThresholdYears IS NULL
         SET @ThresholdYears = 3;
 
-    -- Commit transaction
-    COMMIT TRANSACTION;
+    BEGIN TRY
+        -- Commit transaction
+        BEGIN TRANSACTION;
 
-    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
-    WHERE DATEDIFF(YEAR, record_created_date, GETDATE()) > @ThresholdYears;
+        DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
+        WHERE record_created_date < DATEADD(YEAR, -@ThresholdYears, GETDATE());
 
-    -- Commit transaction
-    COMMIT TRANSACTION;
+        -- Commit transaction
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback transaction in case of error
+        ROLLBACK TRANSACTION;
 
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        SET @ErrorMessage = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage,16,1);
+    END CATCH
 END;
 GO
 
 -- Data Retention
-CREATE PROCEDURE sp_data_retention
+CREATE PROCEDURE sp_archive_database
 AS
 BEGIN
 
@@ -96,11 +123,6 @@ BEGIN
     -- Backup the database
     BACKUP DATABASE IPASSPORTDDB TO DISK = @BackupPath WITH FORMAT;
 
-
-    -- Clear the data from the tables (excluding IPRO_TX_THAIID)
---    DELETE FROM IPRO_TX_TRANSACTION;
---    DELETE FROM IPRO_TX_AUDIT_TRAIL;
---    DELETE FROM IPRO_TX_ACTIVITY_LOG;
 END;
 GO
 
@@ -111,18 +133,63 @@ BEGIN
     DECLARE @ThresholdHours INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdHours = config_value FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'markExpireHourThreshold';
+    SELECT @ThresholdHours = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'markExpireHourThreshold';
 
-    -- Default to 24 hours if no value is found
+    -- Default to 3 hours if no value is found
     IF @ThresholdHours IS NULL
         SET @ThresholdHours = 3;
 
-    UPDATE IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
-    SET transaction_status = 'E'
-    WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours AND transaction_status = 'N';
+    BEGIN TRY
+            -- Start transaction
+            BEGIN TRANSACTION;
+
+            UPDATE IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
+            SET transaction_status = 'E'
+            WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours AND transaction_status IN ('N', 'U');
+
+            -- Commit transaction
+            COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback transaction in case of error
+        ROLLBACK TRANSACTION;
+
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        SET @ErrorMessage = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage,16,1);
+    END CATCH
 
 END;
 GO
+
+-- Mark Expire After Clear Data
+CREATE PROCEDURE sp_mark_expire_before_daily_clear
+AS
+BEGIN
+
+    BEGIN TRY
+            -- Start transaction
+            BEGIN TRANSACTION;
+
+            UPDATE IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
+            SET transaction_status = 'E'
+            WHERE transaction_status IN ('N', 'U');
+
+            -- Commit transaction
+            COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback transaction in case of error
+        ROLLBACK TRANSACTION;
+
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        SET @ErrorMessage = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage,16,1);
+    END CATCH
+
+END;
+GO
+
 
 -- Clear Passport Table
 CREATE PROCEDURE sp_clear_passportid
@@ -131,21 +198,30 @@ BEGIN
     DECLARE @ThresholdHours INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdHours = config_value FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataClearHourThreshold';
+    SELECT @ThresholdHours = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataClearHourThreshold';
 
     -- Default to 24 hours if no value is found
     IF @ThresholdHours IS NULL
         SET @ThresholdHours = 24;
 
-    -- Start transaction
-    BEGIN TRANSACTION;
+    BEGIN TRY
+        -- Start transaction
+        BEGIN TRANSACTION;
 
-    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_PASSPORTID
-    WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours;
+        DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_PASSPORTID
+        WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours;
 
-    -- Commit transaction
-    COMMIT TRANSACTION;
+        -- Commit transaction
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback transaction in case of error
+        ROLLBACK TRANSACTION;
 
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        SET @ErrorMessage = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage,16,1);
+    END CATCH
 END;
 GO
 
@@ -156,20 +232,30 @@ BEGIN
     DECLARE @ThresholdHours INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdHours = config_value FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataClearHourThreshold';
+    SELECT @ThresholdHours = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataClearHourThreshold';
 
     -- Default to 24 hours if no value is found
     IF @ThresholdHours IS NULL
         SET @ThresholdHours = 24;
 
-    -- Commit transaction
-    COMMIT TRANSACTION;
+    BEGIN TRY
+        -- Start transaction
+        BEGIN TRANSACTION;
 
-    DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_THAIID
-    WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours;
+        DELETE FROM IPASSPORTDDB.dbo.IPRO_TX_THAIID
+        WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours;
 
-    -- Commit transaction
-    COMMIT TRANSACTION;
+        -- Commit transaction
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        -- Rollback transaction in case of error
+        ROLLBACK TRANSACTION;
+
+        DECLARE @ErrorMessage NVARCHAR(4000);
+        SET @ErrorMessage = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage,16,1);
+    END CATCH
 
 END;
 GO

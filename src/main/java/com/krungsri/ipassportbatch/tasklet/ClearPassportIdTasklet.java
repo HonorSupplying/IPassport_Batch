@@ -27,10 +27,9 @@ public class ClearPassportIdTasklet implements Tasklet {
             logger.info("Clearing IPRO_TX_PASSPORTID table...");
             jdbcTemplate.execute("EXEC sp_clear_passportid");
             logger.info("IPRO_TX_PASSPORTID cleared.");
-            return RepeatStatus.FINISHED;
         }catch (Exception e){
-            logger.error("Clearing IPRO_TX_PASSPORTID table unsuccess {}",e.getMessage());
-            return RepeatStatus.FINISHED;
+            logger.error("Clearing IPRO_TX_PASSPORTID table Fail {}",e.getMessage());
         }
+        return RepeatStatus.FINISHED;
     }
 }

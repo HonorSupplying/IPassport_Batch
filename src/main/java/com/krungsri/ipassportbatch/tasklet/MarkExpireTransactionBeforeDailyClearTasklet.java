@@ -11,9 +11,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ClearTransactionTasklet implements Tasklet {
+public class MarkExpireTransactionBeforeDailyClearTasklet implements Tasklet {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClearTransactionTasklet.class);
+    private static final Logger logger = LoggerFactory.getLogger(MarkExpireTransactionBeforeDailyClearTasklet.class);
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
@@ -24,11 +24,11 @@ public class ClearTransactionTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         try{
-            logger.info("Clearing IPRO_TX_TRANSACTION table...");
-            jdbcTemplate.execute("EXEC sp_clear_transaction_log");
-            logger.info("IPRO_TX_TRANSACTION cleared.");
+            logger.info("Updating Expire IPRO_TX_TRANSACTION table...");
+            jdbcTemplate.execute("EXEC sp_mark_expire_before_daily_clear");
+            logger.info("IPRO_TX_TRANSACTION Update success.");
         }catch (Exception e){
-            logger.error("Clearing IPRO_TX_TRANSACTION table Fail {}",e.getMessage());
+            logger.error("Updating IPRO_TX_TRANSACTION table Fail {}",e.getMessage());
         }
         return RepeatStatus.FINISHED;
     }
