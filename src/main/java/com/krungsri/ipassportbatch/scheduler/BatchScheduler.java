@@ -52,18 +52,12 @@ public class BatchScheduler {
         jobLauncher.run(clearCustomerData, new JobParameters());
     }
 
-    //@Scheduled(cron = "0 0 * * * ?") // Every hour
-    @Scheduled(cron = "0 */1 * * * *") // Every 1 minute for testing
-    public void scheduleMarkExpiredTransaction() throws Exception {
-        jobLauncher.run(markExpiredTransaction, new JobParameters());
-    }
 
-    @Scheduled(cron = "0 0 0 5 1 *") // Every year @ Date 5 January
-    //@Scheduled(cron = "0 */1 * * * *") // Every 1 minute for testing
+    //@Scheduled(cron = "0 0 0 * * *") // Every Day @ midnight
+    @Scheduled(cron = "0 */1 * * * *") // Every 1 minute for testing
     public void scheduleDataRetention() throws Exception {
         int currentYear = Year.now().getValue();
         if (currentYear % 3 == 0) {
-            jobLauncher.run(clearCustomerData,new JobParameters());
             jobLauncher.run(dataRetention, new JobParameters());
         }
     }

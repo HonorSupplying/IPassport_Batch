@@ -100,70 +100,8 @@ BEGIN
 END;
 GO
 
--- Data Retention
-CREATE PROCEDURE sp_archive_database
-AS
-BEGIN
-
-    -- Declare variables
-    DECLARE @BackupDirectory NVARCHAR(500);
-    DECLARE @BackupPath NVARCHAR(500);
-    DECLARE @Command NVARCHAR(1000);
-
-    -- Retrieve the backup path from a configuration table
-    SELECT @BackupDirectory = config_value FROM IPRO_TX_BATCHCONFIG WHERE config_key = 'archivePath';
-
-    -- Ensure there's a valid backup directory; otherwise, use a default path
-    IF @BackupDirectory IS NULL OR @BackupDirectory = ''
-        SET @BackupDirectory = 'C:\Backups\';
-
-    -- Generate the backup file name with the current date
-    SET @BackupPath = @BackupDirectory + 'ipassport_' + CONVERT(NVARCHAR, GETDATE(), 112) + '.bak';
-
-    -- Backup the database
-    BACKUP DATABASE IPASSPORTDDB TO DISK = @BackupPath WITH FORMAT;
-
-END;
-GO
-
 -- Mark Expire
 CREATE PROCEDURE sp_mark_expire
-AS
-BEGIN
-    DECLARE @ThresholdHours INT;
-
-    -- Retrieve the threshold hours from the database
-    SELECT @ThresholdHours = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'markExpireHourThreshold';
-
-    -- Default to 3 hours if no value is found
-    IF @ThresholdHours IS NULL
-        SET @ThresholdHours = 3;
-
-    BEGIN TRY
-            -- Start transaction
-            BEGIN TRANSACTION;
-
-            UPDATE IPASSPORTDDB.dbo.IPRO_TX_TRANSACTION
-            SET transaction_status = 'E'
-            WHERE DATEDIFF(HOUR, record_created_date, GETDATE()) > @ThresholdHours AND transaction_status IN ('N', 'U');
-
-            -- Commit transaction
-            COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        -- Rollback transaction in case of error
-        ROLLBACK TRANSACTION;
-
-        DECLARE @ErrorMessage NVARCHAR(4000);
-        SET @ErrorMessage = ERROR_MESSAGE();
-        RAISERROR(@ErrorMessage,16,1);
-    END CATCH
-
-END;
-GO
-
--- Mark Expire After Clear Data
-CREATE PROCEDURE sp_mark_expire_before_daily_clear
 AS
 BEGIN
 
