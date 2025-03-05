@@ -8,6 +8,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -16,7 +17,7 @@ public class DataRetentionJob {
     public DataRetentionJob(){}
 
     @Bean
-    public Job dataRetention(JobRepository jobRepository,Step archiveDatabaseStep,Step clearActivityStep,Step clearAuditTrailStep,Step clearTransactionStep){
+    public Job dataRetention(JobRepository jobRepository,Step clearActivityStep,Step clearAuditTrailStep,Step clearTransactionStep){
         return new JobBuilder("dataRetention",jobRepository)
                 .start(clearActivityStep)
                 .next(clearAuditTrailStep)

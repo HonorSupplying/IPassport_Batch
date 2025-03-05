@@ -5,7 +5,7 @@ BEGIN
     DECLARE @ThresholdYears INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
+    SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'DataRetentionYear';
 
     -- Default to 3 years if no value is found
     IF @ThresholdYears IS NULL
@@ -39,7 +39,7 @@ BEGIN
     DECLARE @ThresholdYears INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
+    SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'DataRetentionYear';
 
     -- Default to 24 hours if no value is found
     IF @ThresholdYears IS NULL
@@ -73,7 +73,7 @@ BEGIN
     DECLARE @ThresholdYears INT;
 
     -- Retrieve the threshold hours from the database
-   SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataRetentionYearThreshold';
+   SELECT @ThresholdYears = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'DataRetentionYear';
 
     -- Default to 3 years if no value is found
     IF @ThresholdYears IS NULL
@@ -136,7 +136,7 @@ BEGIN
     DECLARE @ThresholdHours INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdHours = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataClearHourThreshold';
+    SELECT @ThresholdHours = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'DailyClearHour';
 
     -- Default to 24 hours if no value is found
     IF @ThresholdHours IS NULL
@@ -170,7 +170,7 @@ BEGIN
     DECLARE @ThresholdHours INT;
 
     -- Retrieve the threshold hours from the database
-    SELECT @ThresholdHours = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'dataClearHourThreshold';
+    SELECT @ThresholdHours = CAST(config_value AS INT) FROM IPASSPORTDDB.dbo.IPRO_TX_BATCHCONFIG WHERE config_key = 'DailyClearHour';
 
     -- Default to 24 hours if no value is found
     IF @ThresholdHours IS NULL

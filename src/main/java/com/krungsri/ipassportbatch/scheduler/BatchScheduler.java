@@ -19,8 +19,6 @@ public class BatchScheduler {
 
     private Job clearCustomerData;
 
-    private Job markExpiredTransaction;
-
     private Job dataRetention;
 
     @Autowired
@@ -32,12 +30,6 @@ public class BatchScheduler {
     @Qualifier("clearCustomerData")
     public void setClearCustomerData(Job clearCustomerData){
         this.clearCustomerData = clearCustomerData;
-    }
-
-    @Autowired
-    @Qualifier("markExpireTransaction")
-    public void setMarkExpiredTransaction(Job markExpiredTransaction){
-        this.markExpiredTransaction = markExpiredTransaction;
     }
 
     @Autowired
